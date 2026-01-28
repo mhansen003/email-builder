@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       temperature: 0.7,
     });
 
-    return result.toTextStreamResponse();
+    return result.toDataStreamResponse();
   } catch (error) {
     console.error("Email generation error:", error);
     return new Response(

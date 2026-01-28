@@ -6,6 +6,7 @@ import { ToneId, StyleId, LengthId } from "@/lib/types";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useMailto } from "@/hooks/useMailto";
+import { parseEmailParts } from "@/utils/buildMailtoUrl";
 import Header from "@/components/Header";
 import BrowserWarning from "@/components/BrowserWarning";
 import VoiceRecorder from "@/components/VoiceRecorder";
@@ -42,9 +43,6 @@ export default function Home() {
   const { copied, copyToClipboard } = useClipboard();
   const { openInOutlook } = useMailto();
 
-  // Track whether we should auto-open Outlook after generation
-  const [pendingOutlook, setPendingOutlook] = useState(false);
-
   // AI completion
   const {
     completion: email,
@@ -57,7 +55,6 @@ export default function Home() {
       console.error("Generation failed:", error);
       setToast("Failed to generate email. Please try again.");
       setTimeout(() => setToast(null), 3000);
-      setPendingOutlook(false);
     },
   });
 
@@ -74,19 +71,18 @@ export default function Home() {
     setShowBrowserWarning(!isSupported);
   }, [isSupported]);
 
-  // Generate email and auto-open in Outlook when done
+  // Generate email → copy body to clipboard → open Outlook with subject
+  // Everything stays in the click handler's async chain for clipboard access
   const handleGenerate = useCallback(async () => {
     if (!transcript.trim() || isGenerating) return;
 
-    // Stop recording if active
     if (isListening) {
       stopListening();
     }
 
     setCompletion("");
-    setPendingOutlook(true);
 
-    await complete("", {
+    const result = await complete("", {
       body: {
         transcript: transcript.trim(),
         tone,
@@ -95,6 +91,24 @@ export default function Home() {
         recipientContext,
       },
     });
+
+    if (result) {
+      const { subject, body } = parseEmailParts(result);
+
+      // Try clipboard write — still in the click handler's async chain
+      const clipboardOk = await copyToClipboard(body);
+
+      if (clipboardOk) {
+        // Clipboard worked: open mailto with subject only so Outlook keeps signature
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}`;
+        setToast("Outlook opened — paste email body with Ctrl+V above your signature");
+      } else {
+        // Clipboard blocked: put body in the mailto URL directly (signature won't appear)
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        setToast("Outlook opened with email body — add your signature if needed");
+      }
+      setTimeout(() => setToast(null), 5000);
+    }
   }, [
     transcript,
     tone,
@@ -106,19 +120,8 @@ export default function Home() {
     stopListening,
     complete,
     setCompletion,
+    copyToClipboard,
   ]);
-
-  // Auto-open Outlook once streaming finishes
-  useEffect(() => {
-    if (pendingOutlook && !isGenerating && email) {
-      setPendingOutlook(false);
-      (async () => {
-        await openInOutlook(email);
-        setToast("Outlook opened — paste email body with Ctrl+V above your signature");
-        setTimeout(() => setToast(null), 5000);
-      })();
-    }
-  }, [pendingOutlook, isGenerating, email, openInOutlook]);
 
   // Copy email
   const handleCopy = useCallback(async () => {

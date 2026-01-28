@@ -1,7 +1,13 @@
 import { streamText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { buildPrompt } from "@/lib/prompts";
 import { ToneId, StyleId, LengthId } from "@/lib/types";
+
+// OpenRouter uses an OpenAI-compatible API
+const openrouter = createOpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +30,7 @@ export async function POST(request: Request) {
     const prompt = buildPrompt(transcript, tone, style, length, recipientContext);
 
     const result = streamText({
-      model: openai("gpt-4o-mini"),
+      model: openrouter("openai/gpt-4o-mini"),
       prompt,
       maxTokens: 1024,
       temperature: 0.7,

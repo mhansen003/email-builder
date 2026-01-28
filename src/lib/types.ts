@@ -1,10 +1,12 @@
 export type ToneId =
-  | "friendly"
-  | "executive"
-  | "disc-d"
-  | "disc-i"
-  | "disc-s"
-  | "disc-c";
+  | "follow-up"
+  | "request"
+  | "thank-you"
+  | "bad-news"
+  | "urgent"
+  | "introduction"
+  | "update"
+  | "apology";
 
 export type StyleId = "professional" | "casual" | "conversational";
 

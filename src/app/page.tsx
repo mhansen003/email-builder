@@ -31,7 +31,7 @@ export default function Home() {
   const [transcript, setTranscript] = useState("");
 
   // Controls
-  const [tone, setTone] = useState<ToneId>("friendly");
+  const [tone, setTone] = useState<ToneId>("follow-up");
   const [style, setStyle] = useState<StyleId>("professional");
   const [length, setLength] = useState<LengthId>("default");
   const [recipientContext, setRecipientContext] = useState("");

@@ -1,18 +1,22 @@
 import { ToneId, StyleId, LengthId } from "./types";
 
 const TONE_INSTRUCTIONS: Record<ToneId, string> = {
-  friendly:
-    "Write in a warm, personable tone. Use casual greetings like 'Hi' or 'Hey'. Be approachable and add a friendly touch, perhaps asking how they're doing or referencing something personal.",
-  executive:
-    "Write in an authoritative, executive tone. Be concise and decisive. Lead with the key point. Use confident language. Keep sentences short and impactful. No filler words.",
-  "disc-d":
-    "Write for a Dominance (D) personality. Be extremely direct and results-oriented. Lead with the bottom line. Skip pleasantries. Focus on outcomes, decisions, and action items. Be brief and decisive.",
-  "disc-i":
-    "Write for an Influence (I) personality. Be enthusiastic and collaborative. Use optimistic language. Express excitement about working together. Include personal touches and positive affirmations. Be expressive.",
-  "disc-s":
-    "Write for a Steadiness (S) personality. Be calm, supportive, and team-oriented. Show appreciation for their contributions. Avoid pressure or urgency. Use inclusive language ('we', 'our team'). Be patient and considerate.",
-  "disc-c":
-    "Write for a Conscientiousness (C) personality. Be analytical and precise. Include specific details, data points, or references where appropriate. Use structured formatting. Be thorough but not verbose. Focus on accuracy and quality.",
+  "follow-up":
+    "This is a FOLLOW-UP email. Reference the previous conversation, meeting, or request. Be polite but purposeful — the goal is to get a response or move things forward. Use phrases like 'circling back', 'wanted to check in', or 'following up on'. End with a clear ask or next step.",
+  request:
+    "This is a REQUEST email. Be clear about exactly what you need, when you need it, and why. Make it easy for the recipient to say yes. Be respectful but direct. If there's a deadline, state it. End with a specific call to action.",
+  "thank-you":
+    "This is a THANK YOU email. Express genuine, specific gratitude — mention exactly what you're thankful for and why it mattered. Be warm but not over-the-top. Keep it sincere and brief. Avoid generic phrases; make it personal.",
+  "bad-news":
+    "This is a BAD NEWS email. Lead with empathy or context before delivering the news. Be honest and direct but compassionate. Avoid burying the bad news in fluff. If possible, offer an alternative, next step, or silver lining. End on a constructive note.",
+  urgent:
+    "This is an URGENT email. Lead with the time-sensitive element immediately. Be very clear about what's needed and by when. Use direct language — no fluff. Bold or emphasize the deadline/action needed. Keep it short and scannable.",
+  introduction:
+    "This is an INTRODUCTION email. Briefly establish who you are and why you're reaching out. Get to the point quickly — what's the connection or reason for contact. Be warm but professional. End with a clear next step (meeting, call, etc.).",
+  update:
+    "This is a STATUS UPDATE email. Structure the information clearly — what happened, where things stand now, and what's next. Use bullet points or short paragraphs for scannability. Lead with the most important update. Be factual and concise.",
+  apology:
+    "This is an APOLOGY email. Acknowledge the issue directly — don't deflect or minimize. Take responsibility clearly. Explain what happened briefly (without excuses). State what you're doing to fix it or prevent recurrence. Be sincere and professional.",
 };
 
 const STYLE_INSTRUCTIONS: Record<StyleId, string> = {

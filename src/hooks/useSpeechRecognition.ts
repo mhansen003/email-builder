@@ -63,9 +63,15 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const shouldRestartRef = useRef(false);
 
-  const isSupported =
-    typeof window !== "undefined" &&
-    !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  // Defer browser detection to useEffect to prevent SSR hydration mismatch.
+  // Server and client both start with false; client updates after mount.
+  const [isSupported, setIsSupported] = useState(false);
+
+  useEffect(() => {
+    setIsSupported(
+      !!(window.SpeechRecognition || window.webkitSpeechRecognition)
+    );
+  }, []);
 
   const createRecognition = useCallback(() => {
     if (!isSupported) return null;

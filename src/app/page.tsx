@@ -42,6 +42,9 @@ export default function Home() {
   const { copied, copyToClipboard } = useClipboard();
   const { openInOutlook } = useMailto();
 
+  // Track whether we should auto-open Outlook after generation
+  const [pendingOutlook, setPendingOutlook] = useState(false);
+
   // AI completion
   const {
     completion: email,
@@ -50,6 +53,12 @@ export default function Home() {
     setCompletion,
   } = useCompletion({
     api: "/api/generate-email",
+    onError: (error) => {
+      console.error("Generation failed:", error);
+      setToast("Failed to generate email. Please try again.");
+      setTimeout(() => setToast(null), 3000);
+      setPendingOutlook(false);
+    },
   });
 
   // Sync speech transcript → editable transcript
@@ -65,7 +74,7 @@ export default function Home() {
     setShowBrowserWarning(!isSupported);
   }, [isSupported]);
 
-  // Generate email
+  // Generate email and auto-open in Outlook when done
   const handleGenerate = useCallback(async () => {
     if (!transcript.trim() || isGenerating) return;
 
@@ -75,6 +84,7 @@ export default function Home() {
     }
 
     setCompletion("");
+    setPendingOutlook(true);
 
     await complete("", {
       body: {
@@ -97,6 +107,23 @@ export default function Home() {
     complete,
     setCompletion,
   ]);
+
+  // Auto-open Outlook once streaming finishes
+  useEffect(() => {
+    if (pendingOutlook && !isGenerating && email) {
+      setPendingOutlook(false);
+      (async () => {
+        const { wasTruncated } = await openInOutlook(email);
+        if (wasTruncated) {
+          setToast("Email was long — full text copied to clipboard. Paste in Outlook body.");
+          setTimeout(() => setToast(null), 4000);
+        } else {
+          setToast("Opened in Outlook!");
+          setTimeout(() => setToast(null), 2500);
+        }
+      })();
+    }
+  }, [pendingOutlook, isGenerating, email, openInOutlook]);
 
   // Copy email
   const handleCopy = useCallback(async () => {
@@ -195,7 +222,7 @@ export default function Home() {
                 Generating...
               </span>
             ) : (
-              "✨ Generate Email"
+              "✨ Generate & Open in Outlook"
             )}
           </button>
         </div>

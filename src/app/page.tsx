@@ -113,14 +113,9 @@ export default function Home() {
     if (pendingOutlook && !isGenerating && email) {
       setPendingOutlook(false);
       (async () => {
-        const { wasTruncated } = await openInOutlook(email);
-        if (wasTruncated) {
-          setToast("Email was long — full text copied to clipboard. Paste in Outlook body.");
-          setTimeout(() => setToast(null), 4000);
-        } else {
-          setToast("Opened in Outlook!");
-          setTimeout(() => setToast(null), 2500);
-        }
+        await openInOutlook(email);
+        setToast("Outlook opened — paste email body with Ctrl+V above your signature");
+        setTimeout(() => setToast(null), 5000);
       })();
     }
   }, [pendingOutlook, isGenerating, email, openInOutlook]);
@@ -139,11 +134,9 @@ export default function Home() {
   // Open in Outlook
   const handleOutlook = useCallback(async () => {
     if (email) {
-      const { wasTruncated } = await openInOutlook(email);
-      if (wasTruncated) {
-        setToast("Email was too long for mailto — full text copied to clipboard. Paste in Outlook.");
-        setTimeout(() => setToast(null), 4000);
-      }
+      await openInOutlook(email);
+      setToast("Outlook opened — paste email body with Ctrl+V above your signature");
+      setTimeout(() => setToast(null), 5000);
     }
   }, [email, openInOutlook]);
 

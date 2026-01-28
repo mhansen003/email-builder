@@ -1,10 +1,3 @@
-import { MAILTO_CHAR_LIMIT } from "@/lib/constants";
-
-interface MailtoResult {
-  url: string;
-  wasTruncated: boolean;
-}
-
 export function parseEmailParts(emailText: string): {
   subject: string;
   body: string;
@@ -27,30 +20,12 @@ export function parseEmailParts(emailText: string): {
   return { subject, body };
 }
 
-export function buildMailtoUrl(emailText: string): MailtoResult {
-  const { subject, body } = parseEmailParts(emailText);
-
-  const encodedSubject = encodeURIComponent(subject);
-  const encodedBody = encodeURIComponent(body);
-  const fullUrl = `mailto:?subject=${encodedSubject}&body=${encodedBody}`;
-
-  if (fullUrl.length <= MAILTO_CHAR_LIMIT) {
-    return { url: fullUrl, wasTruncated: false };
-  }
-
-  // Truncate body to fit within limit
-  const baseUrl = `mailto:?subject=${encodedSubject}&body=`;
-  const availableChars = MAILTO_CHAR_LIMIT - baseUrl.length;
-
-  // Work with encoded body and truncate
-  let truncatedBody = body;
-  while (encodeURIComponent(truncatedBody).length > availableChars) {
-    truncatedBody = truncatedBody.slice(0, -50);
-  }
-  truncatedBody += "\n\n[Full email copied to clipboard]";
-
-  return {
-    url: `mailto:?subject=${encodedSubject}&body=${encodeURIComponent(truncatedBody)}`,
-    wasTruncated: true,
-  };
+/**
+ * Build a mailto: URL with subject only (no body).
+ * Outlook adds the user's signature when body is omitted.
+ * The email body should be copied to clipboard separately.
+ */
+export function buildMailtoUrl(emailText: string): string {
+  const { subject } = parseEmailParts(emailText);
+  return `mailto:?subject=${encodeURIComponent(subject)}`;
 }

@@ -62,5 +62,3 @@ export const LENGTH_OPTIONS: LengthOption[] = [
   { id: "default", label: "Default", icon: "○" },
   { id: "extend", label: "Extend", icon: "+" },
 ];
-
-export const MAILTO_CHAR_LIMIT = 2000;

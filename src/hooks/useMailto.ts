@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback } from "react";
-import { buildMailtoUrl } from "@/utils/buildMailtoUrl";
+import { buildMailtoUrl, parseEmailParts } from "@/utils/buildMailtoUrl";
 import { useClipboard } from "./useClipboard";
 
 interface MailtoHook {
-  openInOutlook: (emailText: string) => Promise<{ wasTruncated: boolean }>;
+  openInOutlook: (emailText: string) => Promise<void>;
   copied: boolean;
 }
 
@@ -14,15 +14,13 @@ export function useMailto(): MailtoHook {
 
   const openInOutlook = useCallback(
     async (emailText: string) => {
-      const { url, wasTruncated } = buildMailtoUrl(emailText);
+      // Copy email body to clipboard (user pastes above signature)
+      const { body } = parseEmailParts(emailText);
+      await copyToClipboard(body);
 
-      if (wasTruncated) {
-        // Copy full email to clipboard before opening truncated mailto
-        await copyToClipboard(emailText);
-      }
-
+      // Open mailto with subject only — Outlook will add the signature
+      const url = buildMailtoUrl(emailText);
       window.location.href = url;
-      return { wasTruncated };
     },
     [copyToClipboard]
   );

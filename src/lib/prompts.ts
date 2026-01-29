@@ -45,31 +45,31 @@ export function buildPrompt(
   recipientContext: string
 ): string {
   const recipientLine = recipientContext.trim()
-    ? `\nRecipient context: ${recipientContext.trim()}`
+    ? `Recipient: ${recipientContext.trim()}\n`
     : "";
 
-  return `You are an expert email writer. Transform the following voice transcript into a polished, well-structured email.
+  return `Transform this voice transcript into an email. The transcript is THE ONLY SOURCE OF CONTENT — use its exact meaning.
 
-TONE: ${TONE_INSTRUCTIONS[tone]}
+=== TRANSCRIPT (USE THIS CONTENT) ===
+${transcript}
+=== END TRANSCRIPT ===
+
+${recipientLine}Type: ${tone.replace("-", " ")} | Style: ${style} | Length: ${length}
+
+TONE GUIDANCE: ${TONE_INSTRUCTIONS[tone]}
+
+RULES:
+1. The email MUST reflect what the transcript actually says — not generic placeholder text
+2. If the transcript is a test message or nonsense, write an email that literally says "testing" or reflects that
+3. NEVER invent topics, names, projects, or details not in the transcript
+4. NEVER use placeholders like "[specific topic]" — use the actual content or leave it out
+5. Clean up grammar and filler words, but keep the original meaning
+6. Format: First line = "Subject: ..." then blank line, then email body
+7. End with "[Your Name]" as the signature placeholder
 
 STYLE: ${STYLE_INSTRUCTIONS[style]}
 
 LENGTH: ${LENGTH_INSTRUCTIONS[length]}
-${recipientLine}
 
-INSTRUCTIONS:
-- Extract the key message and intent from the transcript
-- Create a clear subject line on the first line, formatted as "Subject: ..."
-- Write the email body starting from the second line
-- Fix any grammar, filler words, or rambling from the transcript
-- Maintain the sender's original intent and key points
-- Do NOT add information that wasn't in the transcript
-- Include an appropriate greeting and sign-off (use "[Your Name]" as placeholder)
-
-TRANSCRIPT:
-"""
-${transcript}
-"""
-
-Write the email now:`;
+Write the email based on the transcript above:`;
 }

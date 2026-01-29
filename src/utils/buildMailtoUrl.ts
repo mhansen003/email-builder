@@ -21,11 +21,11 @@ export function parseEmailParts(emailText: string): {
 }
 
 /**
- * Build a mailto: URL with subject only (no body).
- * Outlook adds the user's signature when body is omitted.
- * The email body should be copied to clipboard separately.
+ * Build a mailto: URL with subject AND body.
+ * Note: Including body means Outlook won't auto-add signature,
+ * but this guarantees the email content actually arrives.
  */
 export function buildMailtoUrl(emailText: string): string {
-  const { subject } = parseEmailParts(emailText);
-  return `mailto:?subject=${encodeURIComponent(subject)}`;
+  const { subject, body } = parseEmailParts(emailText);
+  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

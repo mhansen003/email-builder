@@ -122,8 +122,8 @@ export default function Home() {
   const handleOutlook = useCallback(async () => {
     if (email) {
       await openInOutlook(email);
-      setToast("Outlook opened — paste email body with Ctrl+V above your signature");
-      setTimeout(() => setToast(null), 5000);
+      setToast("Outlook opened with your email!");
+      setTimeout(() => setToast(null), 3000);
     }
   }, [email, openInOutlook]);
 

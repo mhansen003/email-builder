@@ -1,52 +1,97 @@
 import { ToneOption, StyleOption, LengthOption } from "./types";
 
 export const TONE_OPTIONS: ToneOption[] = [
+  // General tones
+  {
+    id: "normal",
+    label: "Normal",
+    description: "Standard, balanced email",
+    color: "bg-text-muted",
+  },
+  {
+    id: "friendly",
+    label: "Friendly",
+    description: "Warm and personable",
+    color: "bg-accent-teal",
+  },
+  {
+    id: "formal",
+    label: "Formal",
+    description: "Official, buttoned-up language",
+    color: "bg-accent-blue",
+  },
+  {
+    id: "excited",
+    label: "Excited",
+    description: "Enthusiastic, high energy",
+    color: "bg-accent-amber",
+  },
+  // Action tones
   {
     id: "follow-up",
     label: "Follow Up",
-    description: "Check in, nudge, or circle back",
+    description: "Circle back, check in",
     color: "bg-accent-blue",
   },
   {
     id: "request",
     label: "Request",
-    description: "Ask for something or get approval",
+    description: "Ask for something",
     color: "bg-accent-teal",
   },
   {
     id: "thank-you",
     label: "Thank You",
-    description: "Show appreciation or recognition",
+    description: "Show appreciation",
     color: "bg-accent-teal",
   },
   {
-    id: "bad-news",
-    label: "Bad News",
-    description: "Decline, deny, or deliver tough info",
-    color: "bg-accent-rose",
-  },
-  {
-    id: "urgent",
-    label: "Urgent",
-    description: "Time-sensitive, needs immediate action",
+    id: "congratulations",
+    label: "Congrats",
+    description: "Celebrate someone's win",
     color: "bg-accent-amber",
   },
   {
-    id: "introduction",
-    label: "Introduction",
-    description: "First contact or warm intro",
+    id: "reminder",
+    label: "Reminder",
+    description: "Gentle nudge",
     color: "bg-accent-blue",
   },
   {
     id: "update",
     label: "Update",
-    description: "Share progress, status, or news",
+    description: "Share status or news",
     color: "bg-accent-teal",
+  },
+  {
+    id: "introduction",
+    label: "Intro",
+    description: "First contact",
+    color: "bg-accent-blue",
+  },
+  {
+    id: "feedback",
+    label: "Feedback",
+    description: "Give constructive input",
+    color: "bg-accent-teal",
+  },
+  // Sensitive tones
+  {
+    id: "bad-news",
+    label: "Bad News",
+    description: "Deliver difficult info",
+    color: "bg-accent-rose",
   },
   {
     id: "apology",
     label: "Apology",
-    description: "Own a mistake or smooth things over",
+    description: "Own a mistake",
+    color: "bg-accent-rose",
+  },
+  {
+    id: "urgent",
+    label: "Urgent",
+    description: "Needs action NOW",
     color: "bg-accent-rose",
   },
 ];

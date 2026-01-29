@@ -88,21 +88,19 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
       let finalText = "";
       let interimText = "";
 
+      // event.results contains ALL results since recognition started
+      // Loop through all and categorize as final vs interim
       for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalText += result[0].transcript;
+          finalText += result[0].transcript + " ";
         } else {
           interimText += result[0].transcript;
         }
       }
 
-      if (finalText) {
-        setTranscript((prev) => {
-          const separator = prev.trim() ? " " : "";
-          return prev + separator + finalText.trim();
-        });
-      }
+      // REPLACE transcript with all final results (don't append - that causes duplication)
+      setTranscript(finalText.trim());
       setInterimTranscript(interimText);
     };
 

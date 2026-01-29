@@ -6,7 +6,6 @@ import { ToneId, StyleId, LengthId } from "@/lib/types";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useMailto } from "@/hooks/useMailto";
-import { parseEmailParts } from "@/utils/buildMailtoUrl";
 import Header from "@/components/Header";
 import BrowserWarning from "@/components/BrowserWarning";
 import VoiceRecorder from "@/components/VoiceRecorder";
@@ -71,8 +70,7 @@ export default function Home() {
     setShowBrowserWarning(!isSupported);
   }, [isSupported]);
 
-  // Generate email → copy body to clipboard → open Outlook with subject
-  // Everything stays in the click handler's async chain for clipboard access
+  // Generate email only (does NOT auto-open Outlook)
   const handleGenerate = useCallback(async () => {
     if (!transcript.trim() || isGenerating) return;
 
@@ -93,12 +91,7 @@ export default function Home() {
     });
 
     if (result) {
-      const { subject, body } = parseEmailParts(result);
-
-      // Always put body in mailto URL — clipboard is unreliable after async streaming
-      // Signature will be lost, but email content is guaranteed to arrive
-      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      setToast("Outlook opened with your email!");
+      setToast("Email generated! Review it below, then copy or open in Outlook.");
       setTimeout(() => setToast(null), 3000);
     }
   }, [
@@ -222,7 +215,7 @@ export default function Home() {
                 Generating...
               </span>
             ) : (
-              "✨ Generate & Open in Outlook"
+              "✨ Generate Email"
             )}
           </button>
 

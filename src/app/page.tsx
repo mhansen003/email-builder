@@ -95,19 +95,11 @@ export default function Home() {
     if (result) {
       const { subject, body } = parseEmailParts(result);
 
-      // Try clipboard write — still in the click handler's async chain
-      const clipboardOk = await copyToClipboard(body);
-
-      if (clipboardOk) {
-        // Clipboard worked: open mailto with subject only so Outlook keeps signature
-        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}`;
-        setToast("Outlook opened — paste email body with Ctrl+V above your signature");
-      } else {
-        // Clipboard blocked: put body in the mailto URL directly (signature won't appear)
-        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        setToast("Outlook opened with email body — add your signature if needed");
-      }
-      setTimeout(() => setToast(null), 5000);
+      // Always put body in mailto URL — clipboard is unreliable after async streaming
+      // Signature will be lost, but email content is guaranteed to arrive
+      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setToast("Outlook opened with your email!");
+      setTimeout(() => setToast(null), 3000);
     }
   }, [
     transcript,
@@ -120,7 +112,6 @@ export default function Home() {
     stopListening,
     complete,
     setCompletion,
-    copyToClipboard,
   ]);
 
   // Copy email

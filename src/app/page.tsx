@@ -134,11 +134,24 @@ export default function Home() {
     }
   }, [email, openInOutlook]);
 
-  // Clear transcript
+  // Clear transcript only
   const handleClear = useCallback(() => {
     setTranscript("");
     resetTranscript();
   }, [resetTranscript]);
+
+  // Start fresh — clear everything
+  const handleNewEmail = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    }
+    setTranscript("");
+    resetTranscript();
+    setCompletion("");
+    setRecipientContext("");
+    setToast("Ready for a new email!");
+    setTimeout(() => setToast(null), 2000);
+  }, [isListening, stopListening, resetTranscript, setCompletion]);
 
   return (
     <div className="relative z-10 min-h-screen pb-24 md:pb-8">
@@ -178,12 +191,12 @@ export default function Home() {
           onRecipientContextChange={setRecipientContext}
         />
 
-        {/* Generate Button */}
-        <div className="px-4 md:px-0 py-4">
+        {/* Generate Button + New Email */}
+        <div className="px-4 md:px-0 py-4 flex gap-3">
           <button
             onClick={handleGenerate}
             disabled={!transcript.trim() || isGenerating}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-accent-blue to-accent-teal text-white font-bold text-base transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
+            className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-accent-blue to-accent-teal text-white font-bold text-base transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
           >
             {isGenerating ? (
               <span className="flex items-center justify-center gap-2">
@@ -212,6 +225,17 @@ export default function Home() {
               "✨ Generate & Open in Outlook"
             )}
           </button>
+
+          {/* New Email button — shows when there's content to clear */}
+          {(transcript.trim() || email) && !isGenerating && (
+            <button
+              onClick={handleNewEmail}
+              className="px-4 py-3.5 rounded-xl bg-bg-card border border-border-subtle text-text-secondary font-semibold text-sm transition-all hover:border-accent-rose/40 hover:text-accent-rose active:scale-[0.98] cursor-pointer whitespace-nowrap"
+              title="Clear and start a new email"
+            >
+              New
+            </button>
+          )}
         </div>
 
         {/* Email Preview */}

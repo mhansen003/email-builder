@@ -20,6 +20,15 @@ export async function POST(request: Request) {
       recipientContext: string;
     };
 
+    // Debug logging
+    console.log("=== EMAIL GENERATION REQUEST ===");
+    console.log("Tone:", tone);
+    console.log("Style:", style);
+    console.log("Length:", length);
+    console.log("Transcript:", transcript?.substring(0, 100));
+    console.log("API Key exists:", !!process.env.OPENROUTER_API_KEY);
+    console.log("API Key prefix:", process.env.OPENROUTER_API_KEY?.substring(0, 10));
+
     if (!transcript?.trim()) {
       return new Response(
         JSON.stringify({ error: "Transcript is required" }),
@@ -28,6 +37,8 @@ export async function POST(request: Request) {
     }
 
     const prompt = buildPrompt(transcript, tone, style, length, recipientContext);
+    console.log("=== PROMPT PREVIEW ===");
+    console.log(prompt.substring(0, 500));
 
     const result = streamText({
       model: openrouter("openai/gpt-4o-mini"),

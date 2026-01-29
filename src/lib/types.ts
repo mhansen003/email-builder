@@ -11,7 +11,6 @@ export type ToneId =
   | "update"
   | "introduction"
   | "feedback"
-  | "bad-news"
   | "apology"
   | "urgent";
 
@@ -40,7 +39,7 @@ export interface LengthOption {
 
 export interface EmailGenerationRequest {
   transcript: string;
-  tone: ToneId;
+  tones: ToneId[];  // Multi-select: can pick multiple tones
   style: StyleId;
   length: LengthId;
   recipientContext: string;

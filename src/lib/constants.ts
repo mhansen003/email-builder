@@ -77,12 +77,6 @@ export const TONE_OPTIONS: ToneOption[] = [
   },
   // Sensitive tones
   {
-    id: "bad-news",
-    label: "Bad News",
-    description: "Deliver difficult info",
-    color: "bg-accent-rose",
-  },
-  {
     id: "apology",
     label: "Apology",
     description: "Own a mistake",

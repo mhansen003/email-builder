@@ -6,29 +6,29 @@ import StyleSelector from "./StyleSelector";
 import LengthControls from "./LengthControls";
 
 interface ControlPanelProps {
-  tone: ToneId;
+  tones: ToneId[];
   style: StyleId;
   length: LengthId;
   recipientContext: string;
-  onToneChange: (tone: ToneId) => void;
+  onTonesChange: (tones: ToneId[]) => void;
   onStyleChange: (style: StyleId) => void;
   onLengthChange: (length: LengthId) => void;
   onRecipientContextChange: (context: string) => void;
 }
 
 export default function ControlPanel({
-  tone,
+  tones,
   style,
   length,
   recipientContext,
-  onToneChange,
+  onTonesChange,
   onStyleChange,
   onLengthChange,
   onRecipientContextChange,
 }: ControlPanelProps) {
   return (
     <div className="px-4 md:px-0 space-y-5 py-4">
-      <ToneSelector selected={tone} onSelect={onToneChange} />
+      <ToneSelector selected={tones} onSelect={onTonesChange} />
       <StyleSelector selected={style} onSelect={onStyleChange} />
       <LengthControls selected={length} onSelect={onLengthChange} />
 

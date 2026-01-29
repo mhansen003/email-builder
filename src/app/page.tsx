@@ -29,8 +29,8 @@ export default function Home() {
   // Editable transcript (synced from speech)
   const [transcript, setTranscript] = useState("");
 
-  // Controls
-  const [tone, setTone] = useState<ToneId>("normal");
+  // Controls - tones is now an array for multi-select
+  const [tones, setTones] = useState<ToneId[]>(["normal"]);
   const [style, setStyle] = useState<StyleId>("professional");
   const [length, setLength] = useState<LengthId>("default");
   const [recipientContext, setRecipientContext] = useState("");
@@ -83,7 +83,7 @@ export default function Home() {
     const result = await complete("", {
       body: {
         transcript: transcript.trim(),
-        tone,
+        tones,  // Now sending array of tones
         style,
         length,
         recipientContext,
@@ -96,7 +96,7 @@ export default function Home() {
     }
   }, [
     transcript,
-    tone,
+    tones,
     style,
     length,
     recipientContext,
@@ -142,6 +142,7 @@ export default function Home() {
     resetTranscript();
     setCompletion("");
     setRecipientContext("");
+    setTones(["normal"]);  // Reset tones to default
     setToast("Ready for a new email!");
     setTimeout(() => setToast(null), 2000);
   }, [isListening, stopListening, resetTranscript, setCompletion]);
@@ -174,11 +175,11 @@ export default function Home() {
 
         {/* Control Panel */}
         <ControlPanel
-          tone={tone}
+          tones={tones}
           style={style}
           length={length}
           recipientContext={recipientContext}
-          onToneChange={setTone}
+          onTonesChange={setTones}
           onStyleChange={setStyle}
           onLengthChange={setLength}
           onRecipientContextChange={setRecipientContext}

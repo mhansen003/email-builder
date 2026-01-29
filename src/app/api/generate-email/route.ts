@@ -12,9 +12,9 @@ const openrouter = createOpenAI({
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { transcript, tone, style, length, recipientContext } = body as {
+    const { transcript, tones, style, length, recipientContext } = body as {
       transcript: string;
-      tone: ToneId;
+      tones: ToneId[];
       style: StyleId;
       length: LengthId;
       recipientContext: string;
@@ -22,12 +22,11 @@ export async function POST(request: Request) {
 
     // Debug logging
     console.log("=== EMAIL GENERATION REQUEST ===");
-    console.log("Tone:", tone);
+    console.log("Tones:", tones);
     console.log("Style:", style);
     console.log("Length:", length);
     console.log("Transcript:", transcript?.substring(0, 100));
     console.log("API Key exists:", !!process.env.OPENROUTER_API_KEY);
-    console.log("API Key prefix:", process.env.OPENROUTER_API_KEY?.substring(0, 10));
 
     if (!transcript?.trim()) {
       return new Response(
@@ -36,7 +35,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const prompt = buildPrompt(transcript, tone, style, length, recipientContext);
+    // Default to "normal" if no tones selected
+    const selectedTones = tones && tones.length > 0 ? tones : ["normal" as ToneId];
+
+    const prompt = buildPrompt(transcript, selectedTones, style, length, recipientContext);
     console.log("=== PROMPT PREVIEW ===");
     console.log(prompt.substring(0, 500));
 

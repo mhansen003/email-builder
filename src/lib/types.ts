@@ -44,3 +44,6 @@ export interface EmailGenerationRequest {
   length: LengthId;
   recipientContext: string;
 }
+
+// Re-export share types for convenience
+export type { HistoryItem, SharedEmailData, PublishedItem } from "./share";

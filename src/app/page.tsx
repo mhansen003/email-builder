@@ -3,6 +3,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { useCompletion } from "@ai-sdk/react";
 import { ToneId, StyleId, LengthId } from "@/lib/types";
+import {
+  HistoryItem,
+  PublishedItem,
+  SharedEmailData,
+  loadHistory,
+  saveHistory,
+  loadPublished,
+  savePublished,
+  buildShareUrl,
+} from "@/lib/share";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useMailto } from "@/hooks/useMailto";
@@ -13,6 +23,8 @@ import TranscriptEditor from "@/components/TranscriptEditor";
 import ControlPanel from "@/components/ControlPanel";
 import EmailPreview from "@/components/EmailPreview";
 import ExportBar from "@/components/ExportBar";
+import EmailHistory from "@/components/EmailHistory";
+import ShareModal from "@/components/ShareModal";
 
 export default function Home() {
   // Speech recognition
@@ -38,6 +50,17 @@ export default function Home() {
   // Toast
   const [toast, setToast] = useState<string | null>(null);
 
+  // History & Published
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [published, setPublished] = useState<PublishedItem[]>([]);
+  const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  // Share modal
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+  const [isSharing, setIsSharing] = useState(false);
+
   // Export hooks
   const { copied, copyToClipboard } = useClipboard();
   const { openInOutlook } = useMailto();
@@ -57,6 +80,26 @@ export default function Home() {
     },
   });
 
+  // Load history & published from localStorage on mount
+  useEffect(() => {
+    setHistory(loadHistory());
+    setPublished(loadPublished());
+  }, []);
+
+  // Persist history when it changes
+  useEffect(() => {
+    if (history.length > 0) {
+      saveHistory(history);
+    }
+  }, [history]);
+
+  // Persist published when it changes
+  useEffect(() => {
+    if (published.length > 0) {
+      savePublished(published);
+    }
+  }, [published]);
+
   // Sync speech transcript → editable transcript
   useEffect(() => {
     if (speechTranscript) {
@@ -70,6 +113,25 @@ export default function Home() {
     setShowBrowserWarning(!isSupported);
   }, [isSupported]);
 
+  // Add to history
+  const addToHistory = useCallback(
+    (generatedEmail: string) => {
+      const item: HistoryItem = {
+        id: Date.now().toString(),
+        timestamp: Date.now(),
+        transcript: transcript.trim(),
+        email: generatedEmail,
+        tones: [...tones],
+        style,
+        length,
+        recipientContext,
+      };
+      setHistory((prev) => [item, ...prev].slice(0, 50));
+      setActiveHistoryId(item.id);
+    },
+    [transcript, tones, style, length, recipientContext]
+  );
+
   // Generate email only (does NOT auto-open Outlook)
   const handleGenerate = useCallback(async () => {
     if (!transcript.trim() || isGenerating) return;
@@ -79,11 +141,12 @@ export default function Home() {
     }
 
     setCompletion("");
+    setActiveHistoryId(null);
 
     const result = await complete("", {
       body: {
         transcript: transcript.trim(),
-        tones,  // Now sending array of tones
+        tones,
         style,
         length,
         recipientContext,
@@ -91,7 +154,8 @@ export default function Home() {
     });
 
     if (result) {
-      setToast("Email generated! Review it below, then copy or open in Outlook.");
+      addToHistory(result);
+      setToast("Email generated & saved! Review it below, then copy or open in Outlook.");
       setTimeout(() => setToast(null), 3000);
     }
   }, [
@@ -105,6 +169,7 @@ export default function Home() {
     stopListening,
     complete,
     setCompletion,
+    addToHistory,
   ]);
 
   // Copy email
@@ -127,6 +192,113 @@ export default function Home() {
     }
   }, [email, openInOutlook]);
 
+  // Share / Publish
+  const handleShare = useCallback(async () => {
+    if (!email || isSharing) return;
+    setIsSharing(true);
+
+    const shareData: SharedEmailData = {
+      transcript: transcript.trim(),
+      email,
+      tones: tones.join(","),
+      style,
+      timestamp: Date.now(),
+    };
+
+    let url = "";
+
+    // Try Vercel KV short URL first
+    try {
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(shareData),
+      });
+
+      if (res.ok) {
+        const { url: shortUrl } = await res.json();
+        url = shortUrl;
+      }
+    } catch {
+      // KV unavailable — fall through to hash URL
+    }
+
+    // Fallback to hash-based URL
+    if (!url) {
+      url = buildShareUrl(shareData);
+    }
+
+    // Add to published list
+    const publishedItem: PublishedItem = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      transcript: transcript.trim(),
+      email,
+      tones: tones.join(","),
+      url,
+    };
+    setPublished((prev) => [publishedItem, ...prev].slice(0, 50));
+
+    setShareUrl(url);
+    setShareModalOpen(true);
+    setIsSharing(false);
+    setToast("Email published! Share the link with anyone.");
+    setTimeout(() => setToast(null), 3000);
+  }, [email, transcript, tones, style, isSharing]);
+
+  // History: select item to restore
+  const handleHistorySelect = useCallback(
+    (item: HistoryItem) => {
+      setTranscript(item.transcript);
+      setCompletion(item.email);
+      setTones(item.tones);
+      setStyle(item.style);
+      setLength(item.length);
+      setRecipientContext(item.recipientContext);
+      setActiveHistoryId(item.id);
+      setIsHistoryOpen(false);
+      setToast("Email restored from history!");
+      setTimeout(() => setToast(null), 2000);
+    },
+    [setCompletion]
+  );
+
+  // History: delete item
+  const handleHistoryDelete = useCallback((id: string) => {
+    setHistory((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      if (updated.length === 0) {
+        try { localStorage.removeItem("emailbuilder-history"); } catch { /* ignore */ }
+      }
+      return updated;
+    });
+    setActiveHistoryId((prev) => (prev === id ? null : prev));
+  }, []);
+
+  // History: clear all
+  const handleHistoryClear = useCallback(() => {
+    setHistory([]);
+    setActiveHistoryId(null);
+    try { localStorage.removeItem("emailbuilder-history"); } catch { /* ignore */ }
+  }, []);
+
+  // Published: delete item
+  const handlePublishedDelete = useCallback((id: string) => {
+    setPublished((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      if (updated.length === 0) {
+        try { localStorage.removeItem("emailbuilder-published"); } catch { /* ignore */ }
+      }
+      return updated;
+    });
+  }, []);
+
+  // Published: clear all
+  const handlePublishedClear = useCallback(() => {
+    setPublished([]);
+    try { localStorage.removeItem("emailbuilder-published"); } catch { /* ignore */ }
+  }, []);
+
   // Clear transcript only
   const handleClear = useCallback(() => {
     setTranscript("");
@@ -142,13 +314,35 @@ export default function Home() {
     resetTranscript();
     setCompletion("");
     setRecipientContext("");
-    setTones(["normal"]);  // Reset tones to default
+    setTones(["normal"]);
+    setActiveHistoryId(null);
     setToast("Ready for a new email!");
     setTimeout(() => setToast(null), 2000);
   }, [isListening, stopListening, resetTranscript, setCompletion]);
 
   return (
     <div className="relative z-10 min-h-screen pb-24 md:pb-8">
+      {/* Email History Sidebar */}
+      <EmailHistory
+        history={history}
+        activeId={activeHistoryId}
+        onSelect={handleHistorySelect}
+        onDelete={handleHistoryDelete}
+        onClear={handleHistoryClear}
+        isOpen={isHistoryOpen}
+        onToggle={() => setIsHistoryOpen((prev) => !prev)}
+        published={published}
+        onPublishedDelete={handlePublishedDelete}
+        onPublishedClear={handlePublishedClear}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        shareUrl={shareUrl}
+      />
+
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <Header />
@@ -242,7 +436,9 @@ export default function Home() {
           onCopy={handleCopy}
           onOutlook={handleOutlook}
           onRegenerate={handleGenerate}
+          onShare={handleShare}
           isGenerating={isGenerating}
+          isSharing={isSharing}
         />
       </div>
 

@@ -6,7 +6,9 @@ interface ExportBarProps {
   onCopy: () => void;
   onOutlook: () => void;
   onRegenerate: () => void;
+  onShare: () => void;
   isGenerating: boolean;
+  isSharing: boolean;
 }
 
 export default function ExportBar({
@@ -15,7 +17,9 @@ export default function ExportBar({
   onCopy,
   onOutlook,
   onRegenerate,
+  onShare,
   isGenerating,
+  isSharing,
 }: ExportBarProps) {
   if (!email) return null;
 
@@ -63,6 +67,25 @@ export default function ExportBar({
             />
           </svg>
           Open in Outlook
+        </button>
+
+        {/* Share button */}
+        <button
+          onClick={onShare}
+          disabled={isGenerating || isSharing}
+          className="px-4 py-3 rounded-xl bg-gradient-to-r from-accent-blue/20 to-accent-teal/20 border border-accent-teal/30 text-accent-teal font-semibold text-sm transition-all hover:border-accent-teal/60 hover:text-white active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+          title="Share this email"
+        >
+          {isSharing ? (
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+          )}
         </button>
 
         {/* Regenerate button */}

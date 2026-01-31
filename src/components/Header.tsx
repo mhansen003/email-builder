@@ -2,9 +2,24 @@
 
 import Image from "next/image";
 
-export default function Header() {
+interface HeaderProps {
+  onAbout: () => void;
+}
+
+export default function Header({ onAbout }: HeaderProps) {
   return (
-    <header className="text-center pt-8 pb-4 md:pt-10 md:pb-6 px-4">
+    <header className="relative text-center pt-8 pb-4 md:pt-10 md:pb-6 px-4">
+      {/* About button — top right */}
+      <button
+        onClick={onAbout}
+        className="absolute top-8 right-4 md:top-10 md:right-6 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card/60 border border-border-subtle text-text-muted hover:text-accent-blue hover:border-accent-blue/40 transition-all text-xs font-medium cursor-pointer"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        About
+      </button>
+
       <div className="flex items-center justify-center gap-3 mb-3">
         <Image
           src="/clear_ai_wht_logo.png"

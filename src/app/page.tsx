@@ -26,6 +26,7 @@ import ExportBar from "@/components/ExportBar";
 import EmailHistory from "@/components/EmailHistory";
 import ShareModal from "@/components/ShareModal";
 import InterviewModal from "@/components/InterviewModal";
+import AboutModal from "@/components/AboutModal";
 
 export default function Home() {
   // Speech recognition
@@ -63,6 +64,9 @@ export default function Home() {
 
   // Interview modal
   const [showInterview, setShowInterview] = useState(false);
+
+  // About modal
+  const [showAbout, setShowAbout] = useState(false);
 
   // Export hooks
   const { copied, copyToClipboard } = useClipboard();
@@ -345,6 +349,12 @@ export default function Home() {
         shareUrl={shareUrl}
       />
 
+      {/* About Modal */}
+      <AboutModal
+        isOpen={showAbout}
+        onClose={() => setShowAbout(false)}
+      />
+
       {/* Interview Modal */}
       <InterviewModal
         isOpen={showInterview}
@@ -356,7 +366,7 @@ export default function Home() {
 
       {/* Header — full width above columns */}
       <div className="max-w-7xl mx-auto">
-        <Header />
+        <Header onAbout={() => setShowAbout(true)} />
         {showBrowserWarning && (
           <div className="max-w-2xl mx-auto">
             <BrowserWarning />

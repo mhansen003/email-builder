@@ -30,6 +30,8 @@ export default function InterviewModal({
   const [finalEmail, setFinalEmail] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const autoSendRef = useRef(false);
+  const sendMessageRef = useRef<() => void>(() => {});
 
   const {
     isListening,
@@ -41,12 +43,40 @@ export default function InterviewModal({
     resetTranscript,
   } = useSpeechRecognition();
 
-  // Sync speech → input
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTranscriptRef = useRef("");
+
+  // Sync speech → input + auto-send on 3s pause
   useEffect(() => {
     if (speechTranscript) {
       setInput(speechTranscript);
+
+      // Clear existing timer
+      if (pauseTimerRef.current) {
+        clearTimeout(pauseTimerRef.current);
+      }
+
+      // Only start timer if transcript actually changed (new words spoken)
+      if (speechTranscript !== lastTranscriptRef.current) {
+        lastTranscriptRef.current = speechTranscript;
+
+        // Auto-send after 3 seconds of silence
+        pauseTimerRef.current = setTimeout(() => {
+          if (speechTranscript.trim() && !isLoading && !isComplete) {
+            autoSendRef.current = true;
+            sendMessageRef.current();
+          }
+        }, 3000);
+      }
     }
-  }, [speechTranscript]);
+  }, [speechTranscript, isLoading, isComplete]);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+    };
+  }, []);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -110,10 +140,15 @@ export default function InterviewModal({
     const text = input.trim();
     if (!text || isLoading) return;
 
-    if (isListening) {
+    const isAutoSend = autoSendRef.current;
+    autoSendRef.current = false;
+
+    // Only stop mic if manually sending (not auto-send)
+    if (!isAutoSend && isListening) {
       stopListening();
-      resetTranscript();
     }
+    resetTranscript();
+    lastTranscriptRef.current = "";
 
     const newMessages: Message[] = [...messages, { role: "user", content: text }];
     setMessages(newMessages);
@@ -145,6 +180,11 @@ export default function InterviewModal({
     }
     setIsLoading(false);
   }, [input, messages, isLoading, isListening, stopListening, resetTranscript, initialTranscript, existingEmail]);
+
+  // Keep ref in sync so timer callback can call latest sendMessage
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
 
   const handleGenerateNow = useCallback(async () => {
     setIsLoading(true);

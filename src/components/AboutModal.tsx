@@ -14,7 +14,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-3xl bg-bg-secondary border border-border-subtle rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md bg-bg-secondary border border-border-subtle rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
           <div className="flex items-center gap-3">

@@ -341,9 +341,9 @@ export default function Home() {
       </div>
 
       {/* Two-column layout on desktop */}
-      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[3fr_2fr] lg:gap-8 lg:px-8 lg:items-start">
+      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[3fr_2fr] gap-4 sm:gap-6 lg:px-6 lg:items-start">
         {/* ═══ LEFT COLUMN: Input & Controls ═══ */}
-        <div className="max-w-xl mx-auto lg:max-w-none">
+        <div className="max-w-xl mx-auto lg:max-w-none lg:mx-0">
           {/* Voice Recorder */}
           <VoiceRecorder
             isListening={isListening}
@@ -404,7 +404,7 @@ export default function Home() {
         </div>
 
         {/* ═══ RIGHT COLUMN: Preview & Export (sticky on desktop) ═══ */}
-        <div className="lg:sticky lg:top-6 max-w-xl mx-auto lg:max-w-none">
+        <div className="lg:sticky lg:top-6 max-w-xl mx-auto lg:max-w-none lg:mx-0">
           {email ? (
             <div className="px-4 md:px-0 lg:px-0">
               <EmailPreview email={email} isStreaming={isGenerating} />

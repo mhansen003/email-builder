@@ -19,6 +19,7 @@ const config: Config = {
           teal: "#14b8a6",
           amber: "#f59e0b",
           rose: "#f43f5e",
+          purple: "#a855f7",
         },
         text: {
           primary: "#f1f5f9",

@@ -25,6 +25,7 @@ import EmailPreview from "@/components/EmailPreview";
 import ExportBar from "@/components/ExportBar";
 import EmailHistory from "@/components/EmailHistory";
 import ShareModal from "@/components/ShareModal";
+import InterviewModal from "@/components/InterviewModal";
 
 export default function Home() {
   // Speech recognition
@@ -42,7 +43,7 @@ export default function Home() {
   const [transcript, setTranscript] = useState("");
 
   // Controls
-  const [tones, setTones] = useState<ToneId[]>(["normal"]);
+  const [tone, setTone] = useState<ToneId>("normal");
   const [style, setStyle] = useState<StyleId>("professional");
   const [length, setLength] = useState<LengthId>("default");
 
@@ -59,6 +60,9 @@ export default function Home() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [isSharing, setIsSharing] = useState(false);
+
+  // Interview modal
+  const [showInterview, setShowInterview] = useState(false);
 
   // Export hooks
   const { copied, copyToClipboard } = useClipboard();
@@ -120,7 +124,7 @@ export default function Home() {
         timestamp: Date.now(),
         transcript: transcript.trim(),
         email: generatedEmail,
-        tones: [...tones],
+        tones: [tone],
         style,
         length,
         recipientContext: "",
@@ -128,7 +132,7 @@ export default function Home() {
       setHistory((prev) => [item, ...prev].slice(0, 50));
       setActiveHistoryId(item.id);
     },
-    [transcript, tones, style, length]
+    [transcript, tone, style, length]
   );
 
   // Generate email
@@ -145,7 +149,7 @@ export default function Home() {
     const result = await complete("", {
       body: {
         transcript: transcript.trim(),
-        tones,
+        tones: [tone],
         style,
         length,
         recipientContext: "",
@@ -159,7 +163,7 @@ export default function Home() {
     }
   }, [
     transcript,
-    tones,
+    tone,
     style,
     length,
     isGenerating,
@@ -198,7 +202,7 @@ export default function Home() {
     const shareData: SharedEmailData = {
       transcript: transcript.trim(),
       email,
-      tones: tones.join(","),
+      tones: tone,
       style,
       timestamp: Date.now(),
     };
@@ -228,7 +232,7 @@ export default function Home() {
       timestamp: Date.now(),
       transcript: transcript.trim(),
       email,
-      tones: tones.join(","),
+      tones: tone,
       url,
     };
     setPublished((prev) => [publishedItem, ...prev].slice(0, 50));
@@ -238,14 +242,14 @@ export default function Home() {
     setIsSharing(false);
     setToast("Email published!");
     setTimeout(() => setToast(null), 3000);
-  }, [email, transcript, tones, style, isSharing]);
+  }, [email, transcript, tone, style, isSharing]);
 
   // History: select item to restore
   const handleHistorySelect = useCallback(
     (item: HistoryItem) => {
       setTranscript(item.transcript);
       setCompletion(item.email);
-      setTones(item.tones);
+      setTone(item.tones[0] || "normal");
       setStyle(item.style);
       setLength(item.length);
       setActiveHistoryId(item.id);
@@ -301,11 +305,22 @@ export default function Home() {
     setTranscript("");
     resetTranscript();
     setCompletion("");
-    setTones(["normal"]);
+    setTone("normal");
     setActiveHistoryId(null);
     setToast("Ready for a new email!");
     setTimeout(() => setToast(null), 2000);
   }, [isListening, stopListening, resetTranscript, setCompletion]);
+
+  // Interview complete → set email directly
+  const handleInterviewComplete = useCallback(
+    (generatedEmail: string) => {
+      setCompletion(generatedEmail);
+      addToHistory(generatedEmail);
+      setToast("Email created from interview!");
+      setTimeout(() => setToast(null), 3000);
+    },
+    [setCompletion, addToHistory]
+  );
 
   return (
     <div className="relative z-10 min-h-screen pb-24 lg:pb-8">
@@ -330,6 +345,15 @@ export default function Home() {
         shareUrl={shareUrl}
       />
 
+      {/* Interview Modal */}
+      <InterviewModal
+        isOpen={showInterview}
+        onClose={() => setShowInterview(false)}
+        onComplete={handleInterviewComplete}
+        initialTranscript={transcript}
+        existingEmail={email || undefined}
+      />
+
       {/* Header — full width above columns */}
       <div className="max-w-7xl mx-auto">
         <Header />
@@ -348,6 +372,7 @@ export default function Home() {
           interimTranscript={interimTranscript}
           onStart={startListening}
           onStop={stopListening}
+          onInterview={() => setShowInterview(true)}
         />
       </div>
 
@@ -365,10 +390,10 @@ export default function Home() {
 
           {/* Control Panel */}
           <ControlPanel
-            tones={tones}
+            tone={tone}
             style={style}
             length={length}
-            onTonesChange={setTones}
+            onToneChange={setTone}
             onStyleChange={setStyle}
             onLengthChange={setLength}
           />
@@ -406,7 +431,7 @@ export default function Home() {
         </div>
 
         {/* ═══ RIGHT COLUMN: Preview & Export (sticky on desktop) ═══ */}
-        <div className="lg:sticky lg:top-6 max-w-xl mx-auto lg:max-w-none lg:mx-0">
+        <div className="lg:sticky lg:top-6 lg:self-stretch max-w-xl mx-auto lg:max-w-none lg:mx-0">
           {email ? (
             <div className="px-4 md:px-0 lg:px-0">
               <EmailPreview email={email} isStreaming={isGenerating} />
@@ -422,7 +447,7 @@ export default function Home() {
               />
             </div>
           ) : (
-            <div className="hidden lg:flex flex-col items-center justify-center rounded-2xl border border-border-subtle/50 border-dashed bg-bg-card/30 h-full min-h-[320px] text-center px-8">
+            <div className="hidden lg:flex flex-col items-center justify-center rounded-2xl border-2 border-accent-teal/40 border-dashed bg-bg-card/30 h-full text-center px-8">
               <div className="w-14 h-14 rounded-2xl bg-bg-card border border-border-subtle flex items-center justify-center mb-4">
                 <svg className="w-7 h-7 text-text-muted/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

@@ -5,6 +5,24 @@ interface EmailPreviewProps {
   isStreaming: boolean;
 }
 
+/** Render text with [Placeholder] brackets highlighted in purple */
+function renderWithPlaceholders(text: string) {
+  const parts = text.split(/(\[[^\]]+\])/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("[") && part.endsWith("]")) {
+      return (
+        <span
+          key={i}
+          className="inline-block bg-accent-purple/15 text-accent-purple border border-accent-purple/30 rounded px-1 py-0.5 text-xs font-semibold mx-0.5"
+        >
+          {part}
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 export default function EmailPreview({ email, isStreaming }: EmailPreviewProps) {
   if (!email) return null;
 
@@ -33,7 +51,9 @@ export default function EmailPreview({ email, isStreaming }: EmailPreviewProps) 
         {subject && (
           <div className="px-4 py-3 border-b border-border-subtle bg-bg-secondary/50">
             <span className="text-xs text-text-muted font-medium">Subject:</span>
-            <p className="text-text-primary font-semibold text-sm mt-0.5">{subject}</p>
+            <p className="text-text-primary font-semibold text-sm mt-0.5">
+              {renderWithPlaceholders(subject)}
+            </p>
           </div>
         )}
 
@@ -44,7 +64,7 @@ export default function EmailPreview({ email, isStreaming }: EmailPreviewProps) 
               isStreaming ? "typing-cursor" : ""
             }`}
           >
-            {body}
+            {renderWithPlaceholders(body)}
           </div>
         </div>
       </div>

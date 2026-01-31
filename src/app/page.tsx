@@ -340,19 +340,21 @@ export default function Home() {
         )}
       </div>
 
+      {/* Voice Recorder — centered above both columns */}
+      <div className="max-w-7xl mx-auto lg:px-6">
+        <VoiceRecorder
+          isListening={isListening}
+          isSupported={isSupported}
+          interimTranscript={interimTranscript}
+          onStart={startListening}
+          onStop={stopListening}
+        />
+      </div>
+
       {/* Two-column layout on desktop */}
       <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[3fr_2fr] gap-4 sm:gap-6 lg:px-6 lg:items-start">
         {/* ═══ LEFT COLUMN: Input & Controls ═══ */}
         <div className="max-w-xl mx-auto lg:max-w-none lg:mx-0">
-          {/* Voice Recorder */}
-          <VoiceRecorder
-            isListening={isListening}
-            isSupported={isSupported}
-            interimTranscript={interimTranscript}
-            onStart={startListening}
-            onStop={stopListening}
-          />
-
           {/* Transcript Editor */}
           <TranscriptEditor
             value={transcript}
@@ -376,7 +378,7 @@ export default function Home() {
             <button
               onClick={handleGenerate}
               disabled={!transcript.trim() || isGenerating}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-accent-blue to-accent-teal text-white font-bold text-sm transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
+              className="flex-1 py-3 rounded-xl bg-accent-blue text-white font-bold text-sm transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center gap-2">
@@ -394,7 +396,7 @@ export default function Home() {
             {(transcript.trim() || email) && !isGenerating && (
               <button
                 onClick={handleNewEmail}
-                className="px-4 py-3 rounded-xl bg-bg-card border border-border-subtle text-text-secondary font-semibold text-sm transition-all hover:border-accent-rose/40 hover:text-accent-rose active:scale-[0.98] cursor-pointer whitespace-nowrap"
+                className="px-4 py-3 rounded-xl bg-accent-teal text-white font-semibold text-sm transition-all hover:brightness-110 active:scale-[0.98] cursor-pointer whitespace-nowrap"
                 title="Clear and start a new email"
               >
                 New

@@ -413,7 +413,11 @@ export default function Home() {
             <button
               onClick={handleGenerate}
               disabled={!transcript.trim() || isGenerating}
-              className="flex-1 py-3 rounded-xl bg-accent-blue text-white font-bold text-sm transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
+              className={`flex-1 py-3 rounded-xl bg-accent-blue text-white font-bold text-sm transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer ${
+                transcript.trim() && !isGenerating
+                  ? "shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-btn-glow"
+                  : ""
+              }`}
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center gap-2">

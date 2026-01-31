@@ -47,11 +47,16 @@ const config: Config = {
           "0%": { transform: "translateX(-100%)", opacity: "0" },
           "100%": { transform: "translateX(0)", opacity: "1" },
         },
+        "btn-glow": {
+          "0%, 100%": { boxShadow: "0 0 10px rgba(59,130,246,0.3)" },
+          "50%": { boxShadow: "0 0 25px rgba(59,130,246,0.6)" },
+        },
       },
       animation: {
         pulse_ring: "pulse_ring 1.5s ease-out infinite",
         fade_in: "fade_in 0.3s ease-out",
         slide_in_left: "slide_in_left 0.3s ease-out",
+        "btn-glow": "btn-glow 2s ease-in-out infinite",
       },
     },
   },

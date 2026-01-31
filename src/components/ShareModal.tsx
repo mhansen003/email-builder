@@ -23,7 +23,7 @@ export default function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProp
   const isShortUrl = shareUrl.includes("/s/");
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
@@ -63,7 +63,7 @@ export default function ShareModal({ isOpen, onClose, shareUrl }: ShareModalProp
                 type="text"
                 value={shareUrl}
                 readOnly
-                className="flex-1 bg-transparent text-sm text-text-secondary font-mono truncate outline-none"
+                className="flex-1 bg-transparent text-xs sm:text-sm text-text-secondary font-mono truncate outline-none"
                 onClick={(e) => (e.target as HTMLInputElement).select()}
               />
               <button

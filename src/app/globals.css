@@ -129,3 +129,20 @@ textarea {
   color: var(--accent-blue);
   margin-left: 2px;
 }
+
+/* Purple glow for interview mode mic button */
+@keyframes interview-mic-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.15),
+      0 0 20px 4px rgba(168, 85, 247, 0);
+  }
+  50% {
+    box-shadow: 0 0 14px 5px rgba(168, 85, 247, 0.4),
+      0 0 30px 10px rgba(168, 85, 247, 0.12);
+  }
+}
+
+.interview-mic-glow {
+  animation: interview-mic-glow 2s ease-in-out infinite;
+}

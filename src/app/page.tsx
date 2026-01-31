@@ -16,6 +16,7 @@ import {
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useMailto } from "@/hooks/useMailto";
+import Image from "next/image";
 import Header from "@/components/Header";
 import BrowserWarning from "@/components/BrowserWarning";
 import VoiceRecorder from "@/components/VoiceRecorder";
@@ -327,7 +328,7 @@ export default function Home() {
   );
 
   return (
-    <div className="relative z-10 min-h-screen pb-24 lg:pb-8">
+    <div className="relative z-10 min-h-screen pb-8">
       {/* Email History Sidebar */}
       <EmailHistory
         history={history}
@@ -448,7 +449,7 @@ export default function Home() {
         <div className="lg:sticky lg:top-6 lg:self-stretch max-w-xl mx-auto lg:max-w-none lg:mx-0">
           {email ? (
             <div className="px-4 md:px-0 lg:px-0">
-              <EmailPreview email={email} isStreaming={isGenerating} />
+              <EmailPreview email={email} isStreaming={isGenerating} onEmailChange={(newEmail) => setCompletion(newEmail)} />
               <ExportBar
                 email={email}
                 copied={copied}
@@ -473,6 +474,29 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border-subtle mt-8">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/clear_ai_wht_logo.png"
+              alt="Clear AI"
+              width={80}
+              height={24}
+              className="h-5 w-auto opacity-60"
+            />
+            <span className="text-xs text-text-muted">
+              Email Builder — Voice to Perfect Email
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-[10px] text-text-muted">
+            <span>Powered by <span className="text-accent-teal font-semibold">Clear AI</span></span>
+            <span className="hidden sm:inline">·</span>
+            <span className="hidden sm:inline">Built by <span className="text-accent-blue">CMG</span></span>
+          </div>
+        </div>
+      </footer>
 
       {/* Toast notification */}
       {toast && (

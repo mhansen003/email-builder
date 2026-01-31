@@ -124,7 +124,7 @@ export default function EmailHistory({
         )}
 
         {/* Sidebar content */}
-        <div className="relative h-full w-80 bg-bg-secondary border-r-2 border-border-subtle shadow-2xl flex flex-col">
+        <div className="relative h-full w-[85vw] max-w-80 bg-bg-secondary border-r-2 border-border-subtle shadow-2xl flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-gradient-to-r from-accent-blue/10 to-transparent">
             <h2 className="text-base font-bold text-text-primary">Email Library</h2>

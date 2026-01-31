@@ -30,7 +30,7 @@ export default function ExportBar({
         <button
           onClick={onCopy}
           disabled={isGenerating}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent-teal text-white font-semibold text-sm transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-accent-teal text-white font-semibold text-xs sm:text-sm transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
         >
           {copied ? (
             <>
@@ -52,7 +52,7 @@ export default function ExportBar({
         <button
           onClick={onOutlook}
           disabled={isGenerating}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent-blue text-white font-semibold text-sm transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-accent-blue text-white font-semibold text-xs sm:text-sm transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

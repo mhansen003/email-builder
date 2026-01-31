@@ -32,6 +32,8 @@ export default function InterviewModal({
   const inputRef = useRef<HTMLInputElement>(null);
   const autoSendRef = useRef(false);
   const sendMessageRef = useRef<() => void>(() => {});
+  const justSentRef = useRef(false);
+  const sentTextRef = useRef("");
 
   const {
     isListening,
@@ -50,6 +52,16 @@ export default function InterviewModal({
   // Sync speech → input + auto-send on 1.5s pause
   useEffect(() => {
     if (speechTranscript) {
+      // If we just sent, ignore stale transcript echoes
+      if (justSentRef.current) {
+        if (speechTranscript === sentTextRef.current || speechTranscript.length <= sentTextRef.current.length) {
+          return;
+        }
+        // New words after send — clear the flag
+        justSentRef.current = false;
+        sentTextRef.current = "";
+      }
+
       setInput(speechTranscript);
 
       // Clear existing timer
@@ -109,6 +121,8 @@ export default function InterviewModal({
       setInput("");
       setIsComplete(false);
       setFinalEmail("");
+      justSentRef.current = false;
+      sentTextRef.current = "";
       resetTranscript();
       startInterview();
     } else {
@@ -161,6 +175,10 @@ export default function InterviewModal({
 
     const isAutoSend = autoSendRef.current;
     autoSendRef.current = false;
+
+    // Track what we just sent to reject stale echoes
+    justSentRef.current = true;
+    sentTextRef.current = text;
 
     // Only stop mic if manually sending (not auto-send)
     if (!isAutoSend && isListening) {
@@ -251,6 +269,8 @@ export default function InterviewModal({
     if (isListening) {
       stopListening();
     } else {
+      justSentRef.current = false;
+      sentTextRef.current = "";
       resetTranscript();
       startListening();
     }
@@ -269,22 +289,22 @@ export default function InterviewModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade_in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-fade_in">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-bg-secondary border-2 border-accent-purple/30 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-2xl max-h-[90vh] bg-bg-secondary border-2 border-accent-purple/30 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-gradient-to-r from-accent-purple/10 to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border-subtle bg-gradient-to-r from-accent-purple/10 to-transparent flex-shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center flex-shrink-0">
+              <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-text-primary">Interview Mode</h2>
+              <h2 className="text-base sm:text-lg font-bold text-text-primary">Interview Mode</h2>
               <p className="text-xs text-text-muted">AI-powered email builder</p>
             </div>
           </div>
@@ -299,11 +319,11 @@ export default function InterviewModal({
         </div>
 
         {/* Messages */}
-        <div className="h-80 overflow-y-auto p-4 space-y-3">
+        <div className="h-[50vh] sm:h-80 overflow-y-auto p-3 sm:p-4 space-y-3 flex-1 min-h-0">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                className={`max-w-[85%] sm:max-w-[80%] px-3.5 sm:px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                   msg.role === "user"
                     ? "bg-accent-purple text-white rounded-br-md"
                     : "bg-bg-card border border-border-subtle text-text-primary rounded-bl-md"
@@ -347,7 +367,7 @@ export default function InterviewModal({
 
         {/* Interim transcript */}
         {isListening && interimTranscript && (
-          <div className="px-4 pb-2">
+          <div className="px-3 sm:px-4 pb-2 flex-shrink-0">
             <div className="p-3 rounded-xl bg-accent-purple/10 border border-accent-purple/30">
               <p className="text-sm text-text-secondary italic">{interimTranscript}</p>
             </div>
@@ -355,7 +375,7 @@ export default function InterviewModal({
         )}
 
         {/* Input area */}
-        <div className="p-4 border-t border-border-subtle bg-bg-card/50">
+        <div className="p-3 sm:p-4 border-t border-border-subtle bg-bg-card/50 flex-shrink-0">
           {isComplete ? (
             <div className="flex gap-2">
               <button
@@ -373,15 +393,15 @@ export default function InterviewModal({
             </div>
           ) : (
             <>
-              <div className="flex gap-2 mb-3">
-                {/* Voice button */}
+              <div className="flex gap-2 mb-2">
+                {/* Voice button with glow */}
                 {isSupported && (
                   <button
                     onClick={toggleVoice}
-                    className={`relative p-2.5 rounded-xl transition-all cursor-pointer flex-shrink-0 ${
+                    className={`relative p-3 rounded-xl transition-all cursor-pointer flex-shrink-0 ${
                       isListening
                         ? "bg-accent-purple text-white"
-                        : "bg-bg-card border border-border-subtle text-text-secondary hover:border-accent-purple/40 hover:text-accent-purple"
+                        : "bg-bg-card border border-accent-purple/40 text-accent-purple interview-mic-glow"
                     }`}
                   >
                     {isListening && (
@@ -409,14 +429,14 @@ export default function InterviewModal({
                   onKeyDown={handleKeyDown}
                   placeholder={isListening ? "Listening..." : "Type your answer..."}
                   disabled={isLoading}
-                  className="flex-1 bg-bg-card border border-border-subtle rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-accent-purple/40 focus:ring-1 focus:ring-accent-purple/20 transition-all disabled:opacity-50"
+                  className="flex-1 bg-bg-card border border-border-subtle rounded-xl px-3 sm:px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-accent-purple/40 focus:ring-1 focus:ring-accent-purple/20 transition-all disabled:opacity-50"
                 />
 
                 {/* Send button */}
                 <button
                   onClick={sendMessage}
                   disabled={!input.trim() || isLoading}
-                  className="p-2.5 rounded-xl bg-accent-purple text-white transition-all hover:brightness-110 active:scale-[0.95] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
+                  className="p-3 rounded-xl bg-accent-purple text-white transition-all hover:brightness-110 active:scale-[0.95] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
@@ -428,16 +448,20 @@ export default function InterviewModal({
               {messages.length >= 3 && !isLoading && (
                 <button
                   onClick={handleGenerateNow}
-                  className="w-full py-2 rounded-xl bg-bg-card border border-accent-teal/30 text-accent-teal font-medium text-xs transition-all hover:bg-accent-teal/10 active:scale-[0.98] cursor-pointer"
+                  className="w-full py-2 rounded-xl bg-bg-card border border-accent-teal/30 text-accent-teal font-medium text-xs transition-all hover:bg-accent-teal/10 active:scale-[0.98] cursor-pointer mb-2"
                 >
                   Generate Email Now
                 </button>
               )}
 
-              {/* Recording indicator */}
-              {isListening && (
-                <p className="text-xs text-accent-purple font-medium text-center mt-2 animate-pulse">
-                  🎙 Listening... speak your answer
+              {/* Mic status label */}
+              {isSupported && (
+                <p className={`text-xs font-medium text-center ${
+                  isListening ? "text-accent-purple animate-pulse" : "text-accent-purple/70"
+                }`}>
+                  {isListening
+                    ? "🎙 Listening... just keep talking"
+                    : "🎙 Continuous play — tap mic and just keep talking"}
                 </p>
               )}
             </>

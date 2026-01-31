@@ -45,11 +45,11 @@ const STYLE_INSTRUCTIONS: Record<StyleId, string> = {
 
 const LENGTH_INSTRUCTIONS: Record<LengthId, string> = {
   condense:
-    "VERY CONCISE: 2-4 sentences maximum. Cut every unnecessary word. Get straight to the point.",
+    "CONCISE: 4-6 sentences. Cover the essentials clearly and directly without unnecessary padding.",
   default:
-    "STANDARD LENGTH: 4-8 sentences. Cover key points clearly without being too brief or long.",
+    "STANDARD LENGTH: 6-12 sentences. Develop each point with enough context and detail to feel complete and professional. Include transitions between ideas. Don't be sparse — flesh out the message so it reads as a well-crafted, thoughtful email.",
   extend:
-    "DETAILED: 8-15 sentences. Elaborate on key points, add context, include supporting details.",
+    "DETAILED: 12-20 sentences. Elaborate thoroughly on key points, add supporting context, include background information, and ensure comprehensive coverage of the topic.",
 };
 
 export function buildPrompt(
@@ -90,8 +90,9 @@ ${toneGuidance}
 1. The email content MUST come from the transcript — do not invent topics, names, or details
 2. If the transcript says "testing 1 2 3" — write a test email that says "testing"
 3. Clean up grammar and filler words ("um", "like", "you know") but preserve meaning
-4. NEVER use placeholders like "[topic]" or "[name]" — use actual content or omit
+4. Use [Placeholder] brackets for any missing details the user should fill in (e.g. [Your Name], [Recipient Name], [Date], [Company Name])
 5. Apply the tone settings noticeably — an "urgent" email should FEEL urgent, a "friendly" email should FEEL warm
+6. Write with substance — expand on the user's key points, add professional transitions, and craft a complete, polished email. Do NOT write bare-minimum emails
 
 ## OUTPUT FORMAT
 First line: Subject: [compelling subject line based on content]

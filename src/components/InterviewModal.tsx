@@ -45,8 +45,9 @@ export default function InterviewModal({
 
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTranscriptRef = useRef("");
+  const hadInterimRef = useRef(false);
 
-  // Sync speech → input + auto-send on 3s pause
+  // Sync speech → input + auto-send on 1.5s pause
   useEffect(() => {
     if (speechTranscript) {
       setInput(speechTranscript);
@@ -60,16 +61,34 @@ export default function InterviewModal({
       if (speechTranscript !== lastTranscriptRef.current) {
         lastTranscriptRef.current = speechTranscript;
 
-        // Auto-send after 3 seconds of silence
+        // Auto-send after 1.5 seconds of silence
         pauseTimerRef.current = setTimeout(() => {
           if (speechTranscript.trim() && !isLoading && !isComplete) {
             autoSendRef.current = true;
             sendMessageRef.current();
           }
-        }, 3000);
+        }, 1500);
       }
     }
   }, [speechTranscript, isLoading, isComplete]);
+
+  // Secondary trigger: when interim transcript goes empty after speech, it means
+  // the recognition finalized — good signal user stopped talking
+  useEffect(() => {
+    if (interimTranscript) {
+      hadInterimRef.current = true;
+    } else if (hadInterimRef.current && isListening && input.trim() && !isLoading && !isComplete) {
+      hadInterimRef.current = false;
+      // Short delay to let final transcript settle
+      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+      pauseTimerRef.current = setTimeout(() => {
+        if (input.trim() && !isLoading && !isComplete) {
+          autoSendRef.current = true;
+          sendMessageRef.current();
+        }
+      }, 800);
+    }
+  }, [interimTranscript, isListening, input, isLoading, isComplete]);
 
   // Clean up timer on unmount
   useEffect(() => {

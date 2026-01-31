@@ -57,9 +57,9 @@ export function buildPrompt(
   tones: ToneId[],
   style: StyleId,
   length: LengthId,
-  recipientContext: string
+  recipientContext?: string
 ): string {
-  const recipientLine = recipientContext.trim()
+  const recipientLine = recipientContext?.trim()
     ? `\n**Recipient context:** ${recipientContext.trim()}`
     : "";
 

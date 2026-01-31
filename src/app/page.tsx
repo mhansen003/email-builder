@@ -41,11 +41,10 @@ export default function Home() {
   // Editable transcript (synced from speech)
   const [transcript, setTranscript] = useState("");
 
-  // Controls - tones is now an array for multi-select
+  // Controls
   const [tones, setTones] = useState<ToneId[]>(["normal"]);
   const [style, setStyle] = useState<StyleId>("professional");
   const [length, setLength] = useState<LengthId>("default");
-  const [recipientContext, setRecipientContext] = useState("");
 
   // Toast
   const [toast, setToast] = useState<string | null>(null);
@@ -124,15 +123,15 @@ export default function Home() {
         tones: [...tones],
         style,
         length,
-        recipientContext,
+        recipientContext: "",
       };
       setHistory((prev) => [item, ...prev].slice(0, 50));
       setActiveHistoryId(item.id);
     },
-    [transcript, tones, style, length, recipientContext]
+    [transcript, tones, style, length]
   );
 
-  // Generate email only (does NOT auto-open Outlook)
+  // Generate email
   const handleGenerate = useCallback(async () => {
     if (!transcript.trim() || isGenerating) return;
 
@@ -149,13 +148,13 @@ export default function Home() {
         tones,
         style,
         length,
-        recipientContext,
+        recipientContext: "",
       },
     });
 
     if (result) {
       addToHistory(result);
-      setToast("Email generated & saved! Review it below, then copy or open in Outlook.");
+      setToast("Email generated!");
       setTimeout(() => setToast(null), 3000);
     }
   }, [
@@ -163,7 +162,6 @@ export default function Home() {
     tones,
     style,
     length,
-    recipientContext,
     isGenerating,
     isListening,
     stopListening,
@@ -207,28 +205,24 @@ export default function Home() {
 
     let url = "";
 
-    // Try Vercel KV short URL first
     try {
       const res = await fetch("/api/share", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(shareData),
       });
-
       if (res.ok) {
         const { url: shortUrl } = await res.json();
         url = shortUrl;
       }
     } catch {
-      // KV unavailable — fall through to hash URL
+      // KV unavailable
     }
 
-    // Fallback to hash-based URL
     if (!url) {
       url = buildShareUrl(shareData);
     }
 
-    // Add to published list
     const publishedItem: PublishedItem = {
       id: Date.now().toString(),
       timestamp: Date.now(),
@@ -242,7 +236,7 @@ export default function Home() {
     setShareUrl(url);
     setShareModalOpen(true);
     setIsSharing(false);
-    setToast("Email published! Share the link with anyone.");
+    setToast("Email published!");
     setTimeout(() => setToast(null), 3000);
   }, [email, transcript, tones, style, isSharing]);
 
@@ -254,7 +248,6 @@ export default function Home() {
       setTones(item.tones);
       setStyle(item.style);
       setLength(item.length);
-      setRecipientContext(item.recipientContext);
       setActiveHistoryId(item.id);
       setIsHistoryOpen(false);
       setToast("Email restored from history!");
@@ -263,7 +256,7 @@ export default function Home() {
     [setCompletion]
   );
 
-  // History: delete item
+  // History: delete / clear
   const handleHistoryDelete = useCallback((id: string) => {
     setHistory((prev) => {
       const updated = prev.filter((item) => item.id !== id);
@@ -275,14 +268,12 @@ export default function Home() {
     setActiveHistoryId((prev) => (prev === id ? null : prev));
   }, []);
 
-  // History: clear all
   const handleHistoryClear = useCallback(() => {
     setHistory([]);
     setActiveHistoryId(null);
     try { localStorage.removeItem("emailbuilder-history"); } catch { /* ignore */ }
   }, []);
 
-  // Published: delete item
   const handlePublishedDelete = useCallback((id: string) => {
     setPublished((prev) => {
       const updated = prev.filter((item) => item.id !== id);
@@ -293,7 +284,6 @@ export default function Home() {
     });
   }, []);
 
-  // Published: clear all
   const handlePublishedClear = useCallback(() => {
     setPublished([]);
     try { localStorage.removeItem("emailbuilder-published"); } catch { /* ignore */ }
@@ -305,15 +295,12 @@ export default function Home() {
     resetTranscript();
   }, [resetTranscript]);
 
-  // Start fresh — clear everything
+  // Start fresh
   const handleNewEmail = useCallback(() => {
-    if (isListening) {
-      stopListening();
-    }
+    if (isListening) stopListening();
     setTranscript("");
     resetTranscript();
     setCompletion("");
-    setRecipientContext("");
     setTones(["normal"]);
     setActiveHistoryId(null);
     setToast("Ready for a new email!");
@@ -321,7 +308,7 @@ export default function Home() {
   }, [isListening, stopListening, resetTranscript, setCompletion]);
 
   return (
-    <div className="relative z-10 min-h-screen pb-24 md:pb-8">
+    <div className="relative z-10 min-h-screen pb-24 lg:pb-8">
       {/* Email History Sidebar */}
       <EmailHistory
         history={history}
@@ -343,103 +330,107 @@ export default function Home() {
         shareUrl={shareUrl}
       />
 
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
+      {/* Header — full width above columns */}
+      <div className="max-w-6xl mx-auto">
         <Header />
+        {showBrowserWarning && (
+          <div className="max-w-2xl mx-auto">
+            <BrowserWarning />
+          </div>
+        )}
+      </div>
 
-        {/* Browser Warning */}
-        {showBrowserWarning && <BrowserWarning />}
+      {/* Two-column layout on desktop */}
+      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-2 lg:gap-8 lg:px-6">
+        {/* ═══ LEFT COLUMN: Input & Controls ═══ */}
+        <div>
+          {/* Voice Recorder */}
+          <VoiceRecorder
+            isListening={isListening}
+            isSupported={isSupported}
+            interimTranscript={interimTranscript}
+            onStart={startListening}
+            onStop={stopListening}
+          />
 
-        {/* Voice Recorder */}
-        <VoiceRecorder
-          isListening={isListening}
-          isSupported={isSupported}
-          interimTranscript={interimTranscript}
-          onStart={startListening}
-          onStop={stopListening}
-        />
+          {/* Transcript Editor */}
+          <TranscriptEditor
+            value={transcript}
+            onChange={setTranscript}
+            onClear={handleClear}
+            isListening={isListening}
+          />
 
-        {/* Transcript Editor */}
-        <TranscriptEditor
-          value={transcript}
-          onChange={setTranscript}
-          onClear={handleClear}
-          isListening={isListening}
-        />
+          {/* Control Panel */}
+          <ControlPanel
+            tones={tones}
+            style={style}
+            length={length}
+            onTonesChange={setTones}
+            onStyleChange={setStyle}
+            onLengthChange={setLength}
+          />
 
-        {/* Control Panel */}
-        <ControlPanel
-          tones={tones}
-          style={style}
-          length={length}
-          recipientContext={recipientContext}
-          onTonesChange={setTones}
-          onStyleChange={setStyle}
-          onLengthChange={setLength}
-          onRecipientContextChange={setRecipientContext}
-        />
-
-        {/* Generate Button + New Email */}
-        <div className="px-4 md:px-0 py-4 flex gap-3">
-          <button
-            onClick={handleGenerate}
-            disabled={!transcript.trim() || isGenerating}
-            className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-accent-blue to-accent-teal text-white font-bold text-base transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
-          >
-            {isGenerating ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="w-5 h-5 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Generating...
-              </span>
-            ) : (
-              "✨ Generate Email"
-            )}
-          </button>
-
-          {/* New Email button — shows when there's content to clear */}
-          {(transcript.trim() || email) && !isGenerating && (
+          {/* Generate Button + New Email */}
+          <div className="px-4 md:px-0 lg:px-0 py-3 flex gap-3">
             <button
-              onClick={handleNewEmail}
-              className="px-4 py-3.5 rounded-xl bg-bg-card border border-border-subtle text-text-secondary font-semibold text-sm transition-all hover:border-accent-rose/40 hover:text-accent-rose active:scale-[0.98] cursor-pointer whitespace-nowrap"
-              title="Clear and start a new email"
+              onClick={handleGenerate}
+              disabled={!transcript.trim() || isGenerating}
+              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-accent-blue to-accent-teal text-white font-bold text-sm transition-all hover:brightness-110 hover:shadow-lg hover:shadow-accent-blue/20 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none cursor-pointer"
             >
-              New
+              {isGenerating ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Generating...
+                </span>
+              ) : (
+                "✨ Generate Email"
+              )}
             </button>
-          )}
+
+            {(transcript.trim() || email) && !isGenerating && (
+              <button
+                onClick={handleNewEmail}
+                className="px-4 py-3 rounded-xl bg-bg-card border border-border-subtle text-text-secondary font-semibold text-sm transition-all hover:border-accent-rose/40 hover:text-accent-rose active:scale-[0.98] cursor-pointer whitespace-nowrap"
+                title="Clear and start a new email"
+              >
+                New
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Email Preview */}
-        <EmailPreview email={email} isStreaming={isGenerating} />
-
-        {/* Export Bar */}
-        <ExportBar
-          email={email}
-          copied={copied}
-          onCopy={handleCopy}
-          onOutlook={handleOutlook}
-          onRegenerate={handleGenerate}
-          onShare={handleShare}
-          isGenerating={isGenerating}
-          isSharing={isSharing}
-        />
+        {/* ═══ RIGHT COLUMN: Preview & Export (sticky on desktop) ═══ */}
+        <div className="lg:sticky lg:top-6 lg:self-start">
+          {email ? (
+            <div className="px-4 md:px-0 lg:px-0">
+              <EmailPreview email={email} isStreaming={isGenerating} />
+              <ExportBar
+                email={email}
+                copied={copied}
+                onCopy={handleCopy}
+                onOutlook={handleOutlook}
+                onRegenerate={handleGenerate}
+                onShare={handleShare}
+                isGenerating={isGenerating}
+                isSharing={isSharing}
+              />
+            </div>
+          ) : (
+            <div className="hidden lg:flex flex-col items-center justify-center h-80 text-center px-8">
+              <div className="w-16 h-16 rounded-2xl bg-bg-card border border-border-subtle flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-text-muted/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="text-text-muted text-sm">Your generated email will appear here</p>
+              <p className="text-text-muted/50 text-xs mt-1">Record, type, or drop a text file to get started</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Toast notification */}

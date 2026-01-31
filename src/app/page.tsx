@@ -340,19 +340,21 @@ export default function Home() {
         )}
       </div>
 
-      {/* Two-column layout on desktop */}
-      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-2 lg:gap-8 lg:px-6">
-        {/* ═══ LEFT COLUMN: Input & Controls ═══ */}
-        <div>
-          {/* Voice Recorder */}
-          <VoiceRecorder
-            isListening={isListening}
-            isSupported={isSupported}
-            interimTranscript={interimTranscript}
-            onStart={startListening}
-            onStop={stopListening}
-          />
+      {/* Voice Recorder — centered above both columns */}
+      <div className="max-w-6xl mx-auto lg:px-8 lg:pl-16">
+        <VoiceRecorder
+          isListening={isListening}
+          isSupported={isSupported}
+          interimTranscript={interimTranscript}
+          onStart={startListening}
+          onStop={stopListening}
+        />
+      </div>
 
+      {/* Two-column layout on desktop */}
+      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pl-16 lg:items-start">
+        {/* ═══ LEFT COLUMN: Input & Controls ═══ */}
+        <div className="max-w-xl mx-auto lg:max-w-none">
           {/* Transcript Editor */}
           <TranscriptEditor
             value={transcript}
@@ -404,7 +406,7 @@ export default function Home() {
         </div>
 
         {/* ═══ RIGHT COLUMN: Preview & Export (sticky on desktop) ═══ */}
-        <div className="lg:sticky lg:top-6 lg:self-start">
+        <div className="lg:sticky lg:top-6 max-w-xl mx-auto lg:max-w-none">
           {email ? (
             <div className="px-4 md:px-0 lg:px-0">
               <EmailPreview email={email} isStreaming={isGenerating} />
@@ -420,9 +422,9 @@ export default function Home() {
               />
             </div>
           ) : (
-            <div className="hidden lg:flex flex-col items-center justify-center h-80 text-center px-8">
-              <div className="w-16 h-16 rounded-2xl bg-bg-card border border-border-subtle flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-text-muted/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="hidden lg:flex flex-col items-center justify-center rounded-2xl border border-border-subtle/50 border-dashed bg-bg-card/30 h-full min-h-[320px] text-center px-8">
+              <div className="w-14 h-14 rounded-2xl bg-bg-card border border-border-subtle flex items-center justify-center mb-4">
+                <svg className="w-7 h-7 text-text-muted/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>

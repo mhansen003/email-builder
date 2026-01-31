@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Header() {
   return (
-    <header className="text-center pt-10 pb-6 md:pt-16 md:pb-10 px-4">
+    <header className="text-center pt-8 pb-4 md:pt-10 md:pb-6 px-4">
       <div className="flex items-center justify-center gap-3 mb-3">
         <Image
           src="/clear_ai_wht_logo.png"

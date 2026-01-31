@@ -37,7 +37,7 @@ export default function VoiceRecorder({
           isListening ? onStop() : onStart();
         }}
         className={`
-          relative w-16 h-16 rounded-full flex items-center justify-center
+          relative w-20 h-20 rounded-full flex items-center justify-center
           transition-all duration-300 cursor-pointer
           ${
             isListening
@@ -60,7 +60,7 @@ export default function VoiceRecorder({
           </>
         )}
         <svg
-          className={`w-7 h-7 relative z-10 transition-colors ${
+          className={`w-8 h-8 relative z-10 transition-colors ${
             isListening ? "text-white" : showIdleGlow ? "text-accent-blue" : "text-text-secondary"
           }`}
           fill="currentColor"

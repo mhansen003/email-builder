@@ -28,6 +28,7 @@ import EmailHistory from "@/components/EmailHistory";
 import ShareModal from "@/components/ShareModal";
 import InterviewModal from "@/components/InterviewModal";
 import AboutModal from "@/components/AboutModal";
+import QRCodeModal from "@/components/QRCodeModal";
 
 export default function Home() {
   // Speech recognition
@@ -68,6 +69,9 @@ export default function Home() {
 
   // About modal
   const [showAbout, setShowAbout] = useState(false);
+
+  // QR code share modal
+  const [showQRCode, setShowQRCode] = useState(false);
 
   // Export hooks
   const { copied, copyToClipboard } = useClipboard();
@@ -356,6 +360,12 @@ export default function Home() {
         onClose={() => setShowAbout(false)}
       />
 
+      {/* QR Code Share Modal */}
+      <QRCodeModal
+        isOpen={showQRCode}
+        onClose={() => setShowQRCode(false)}
+      />
+
       {/* Interview Modal */}
       <InterviewModal
         isOpen={showInterview}
@@ -367,7 +377,7 @@ export default function Home() {
 
       {/* Header — full width above columns */}
       <div className="max-w-7xl mx-auto">
-        <Header onAbout={() => setShowAbout(true)} />
+        <Header onAbout={() => setShowAbout(true)} onShare={() => setShowQRCode(true)} />
         {showBrowserWarning && (
           <div className="max-w-2xl mx-auto">
             <BrowserWarning />

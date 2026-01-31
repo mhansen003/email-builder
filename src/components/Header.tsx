@@ -4,9 +4,10 @@ import Image from "next/image";
 
 interface HeaderProps {
   onAbout: () => void;
+  onShare: () => void;
 }
 
-export default function Header({ onAbout }: HeaderProps) {
+export default function Header({ onAbout, onShare }: HeaderProps) {
   return (
     <header className="pt-5 pb-3 md:pt-8 md:pb-5 px-4 md:px-6">
       {/* Top row: logo + about */}
@@ -24,15 +25,27 @@ export default function Header({ onAbout }: HeaderProps) {
             Email Builder
           </h1>
         </div>
-        <button
-          onClick={onAbout}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card/60 border border-border-subtle text-text-muted hover:text-accent-blue hover:border-accent-blue/40 transition-all text-xs font-medium cursor-pointer flex-shrink-0 ml-2"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          About
-        </button>
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-2">
+          <button
+            onClick={onShare}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card/60 border border-border-subtle text-text-muted hover:text-accent-teal hover:border-accent-teal/40 transition-all text-xs font-medium cursor-pointer"
+            title="Show QR code to share Email Builder"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm14 3h.01M17 14h.01M14 14h3v3h-3v-3zm3 3h3v3h-3v-3zm-7 0h.01" />
+            </svg>
+            <span className="hidden sm:inline">Share</span>
+          </button>
+          <button
+            onClick={onAbout}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card/60 border border-border-subtle text-text-muted hover:text-accent-blue hover:border-accent-blue/40 transition-all text-xs font-medium cursor-pointer"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="hidden sm:inline">About</span>
+          </button>
+        </div>
       </div>
       <p className="text-text-secondary text-xs sm:text-sm md:text-base text-center max-w-md mx-auto">
         Speak your thoughts. AI crafts the perfect email.

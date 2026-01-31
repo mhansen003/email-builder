@@ -90,7 +90,7 @@ export default function TranscriptEditor({
                 ? "Your words will appear here as you speak..."
                 : "Type, paste, or drop a .txt file here..."
             }
-            rows={4}
+            rows={6}
             className="w-full bg-bg-card border border-border-subtle rounded-xl px-4 py-3 text-text-primary placeholder:text-text-muted/50 resize-none focus:outline-none focus:border-accent-blue/40 focus:ring-1 focus:ring-accent-blue/20 transition-all text-sm"
           />
           {isDragging && (

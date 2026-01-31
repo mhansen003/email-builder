@@ -331,7 +331,7 @@ export default function Home() {
       />
 
       {/* Header — full width above columns */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <Header />
         {showBrowserWarning && (
           <div className="max-w-2xl mx-auto">
@@ -340,21 +340,19 @@ export default function Home() {
         )}
       </div>
 
-      {/* Voice Recorder — centered above both columns */}
-      <div className="max-w-6xl mx-auto lg:px-8 lg:pl-16">
-        <VoiceRecorder
-          isListening={isListening}
-          isSupported={isSupported}
-          interimTranscript={interimTranscript}
-          onStart={startListening}
-          onStop={stopListening}
-        />
-      </div>
-
       {/* Two-column layout on desktop */}
-      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pl-16 lg:items-start">
+      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[3fr_2fr] lg:gap-8 lg:px-8 lg:items-start">
         {/* ═══ LEFT COLUMN: Input & Controls ═══ */}
         <div className="max-w-xl mx-auto lg:max-w-none">
+          {/* Voice Recorder */}
+          <VoiceRecorder
+            isListening={isListening}
+            isSupported={isSupported}
+            interimTranscript={interimTranscript}
+            onStart={startListening}
+            onStop={stopListening}
+          />
+
           {/* Transcript Editor */}
           <TranscriptEditor
             value={transcript}

@@ -87,7 +87,7 @@ export default function EmailHistory({
       {!isOpen && (
         <button
           onClick={onToggle}
-          className="fixed left-4 top-1/2 -translate-y-1/2 z-40 p-3 rounded-xl bg-bg-card border-2 border-border-subtle hover:border-accent-blue/50 text-text-secondary hover:text-accent-blue transition-all shadow-lg group cursor-pointer"
+          className="fixed left-4 bottom-6 z-40 p-3 rounded-xl bg-bg-card border-2 border-border-subtle hover:border-accent-blue/50 text-text-secondary hover:text-accent-blue transition-all shadow-lg group cursor-pointer"
           title="Open email history"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
